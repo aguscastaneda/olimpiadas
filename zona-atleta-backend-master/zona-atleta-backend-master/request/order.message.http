@@ -1,0 +1,13 @@
+GET http://localhost:3000/api/order-message/1 HTTP/1.1
+
+GET http://localhost:3000/api/order-message/1/order-message HTTP/1.1
+
+GET http://localhost:3000/api/order-message HTTP/1.1
+
+POST http://localhost:3000/api/order-message/1 HTTP/1.1
+content-type: application/json
+
+{
+    "message": "Que bueno pa",
+    "vendedor": true
+}

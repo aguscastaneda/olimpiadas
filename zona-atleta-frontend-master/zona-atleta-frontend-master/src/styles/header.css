@@ -1,0 +1,95 @@
+.header {
+    padding: 1rem .5rem;
+    overflow: hidden;
+}
+
+.header__container {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.header__content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: start;
+    justify-content: center;
+}
+
+.header__title {
+    font-size: clamp(2rem, 5vw + 1rem, 2.8rem);
+    font-family: Montserrat;
+    font-weight: bold;
+    margin: 0;
+}
+
+.header__figuro {
+    width: 60%;
+    justify-self: center;
+}
+
+.header__img {
+    width: 100%;
+    filter: brightness(.8);
+    border-radius: .5rem;
+}
+
+.header__paragraph {
+    font-size: 1.5rem;
+}
+
+.header__btn {
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: .5rem;
+    cursor: pointer;
+}
+
+@media (width >=900px) {}
+
+.football-container {
+    width: 100%;
+    height: 40rem;
+    overflow: hidden;
+}
+
+.football {
+    filter: brightness(.9);
+    animation: football-animation 7.5s linear alternate-reverse infinite;
+    transform: translateY(-15rem);
+}
+
+@keyframes football-animation {
+    0% {
+        scale: 1;
+        /* transform: translateY(-15rem); */
+    }
+
+    100% {
+        scale: 1.5;
+        /* transform: translateY(-20rem); */
+    }
+}
+
+@media (width <=512px) {
+
+    .header__container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 5rem;
+
+        & button {
+            align-self: center;
+        }
+    }
+
+    .header__figuro {
+        width: 100%;
+    }
+}

@@ -1,0 +1,10 @@
+GET http://localhost:3000/api/order HTTP/1.1
+
+GET http://localhost:3000/api/order/ HTTP/1.1
+
+PUT http://localhost:3000/api/order/1 HTTP/1.1
+content-type: application/json
+
+{
+    "address": "Balbin 6058"
+}

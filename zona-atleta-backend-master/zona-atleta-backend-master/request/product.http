@@ -1,0 +1,23 @@
+GET http://localhost:3000/api/product HTTP/1.1
+
+GET http://localhost:3000/api/product/2 HTTP/1.1
+
+POST http://localhost:3000/api/product HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Pelota de futbol",
+    "categoryId": 1,
+    "description": "Pelota de futbol de calidad",
+    "price": 1000,
+    "stock": 50
+}
+
+DELETE http://localhost:3000/api/product/2 HTTP/1.1
+
+PUT http://localhost:3000/api/product/1 HTTP/1.1
+content-type: application/json
+
+{
+    "price": 0.5
+}
