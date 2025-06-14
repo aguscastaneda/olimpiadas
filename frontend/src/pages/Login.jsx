@@ -6,16 +6,26 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      await login(email, password);
-      navigate('/');
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error || 'Error al iniciar sesión');
+      }
     } catch (error) {
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
+      setError('Error al iniciar sesión. Por favor, intenta nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +57,7 @@ const Login = () => {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div>
@@ -62,6 +73,7 @@ const Login = () => {
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
           </div>
@@ -69,9 +81,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              disabled={loading}
             >
-              Iniciar Sesión
+              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </div>
 

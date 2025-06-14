@@ -103,24 +103,20 @@ const MyOrders = () => {
                       Estado:{' '}
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          order.status === 'PENDING'
+                          order.status === 0
                             ? 'bg-yellow-100 text-yellow-800'
-                            : order.status === 'PROCESSING'
+                            : order.status === 1
                             ? 'bg-blue-100 text-blue-800'
-                            : order.status === 'SHIPPED'
-                            ? 'bg-purple-100 text-purple-800'
-                            : order.status === 'DELIVERED'
+                            : order.status === 2
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }`}
                       >
-                        {order.status === 'PENDING'
+                        {order.status === 0
                           ? 'Pendiente'
-                          : order.status === 'PROCESSING'
+                          : order.status === 1
                           ? 'Procesando'
-                          : order.status === 'SHIPPED'
-                          ? 'Enviado'
-                          : order.status === 'DELIVERED'
+                          : order.status === 2
                           ? 'Entregado'
                           : 'Cancelado'}
                       </span>

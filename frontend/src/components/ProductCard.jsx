@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const ProductCard = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const { user } = useAuth();
 
   const handleAddToCart = async () => {
@@ -27,6 +28,9 @@ const ProductCard = ({ product }) => {
         }
       );
       setError('');
+      setSuccess('¡Producto agregado correctamente!');
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError(error.response?.data?.error || 'Error al agregar el producto al carrito');
       console.error('Error al agregar al carrito:', error);
@@ -55,6 +59,11 @@ const ProductCard = ({ product }) => {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+            {success}
           </div>
         )}
         <div className="flex items-center space-x-4">

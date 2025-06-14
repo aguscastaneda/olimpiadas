@@ -1,21 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const { auth, checkRole } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
+const { checkRole } = require('../middleware/checkRole');
 const {
   createOrder,
+  handleWebhook,
   getMyOrders,
   getAllOrders,
   updateOrderStatus,
-  cancelOrder,
+  cancelOrder
 } = require('../controllers/orderController');
 
-// Rutas para usuarios autenticados
-router.post('/', auth, createOrder);
-router.get('/my-orders', auth, getMyOrders);
-router.delete('/:id/cancel', auth, cancelOrder);
+// Rutas públicas
+router.post('/webhook', handleWebhook);
 
-// Rutas para gerentes de ventas
-router.get('/', auth, checkRole(['SALES_MANAGER']), getAllOrders);
-router.put('/:id/status', auth, checkRole(['SALES_MANAGER']), updateOrderStatus);
+// Todas las rutas requieren autenticación
+router.use(auth);
+
+// Rutas de administrador
+router.get('/', checkRole(['SALES_MANAGER']), getAllOrders);
+router.put('/:orderId/status', checkRole(['SALES_MANAGER']), updateOrderStatus);
+
+// Rutas de cliente
+router.get('/my-orders', getMyOrders);
+router.post('/', createOrder);
+router.post('/:orderId/cancel', cancelOrder);
 
 module.exports = router; 

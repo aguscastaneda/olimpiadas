@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -72,8 +73,12 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    setError('');
+    
     try {
-      const response = await axios.post(
+      // First create the order
+      const orderResponse = await axios.post(
         'http://localhost:3000/api/orders',
         {},
         {
@@ -83,15 +88,33 @@ const Cart = () => {
         }
       );
 
-      // Redirigir a la página de pago de MercadoPago
-      if (response.data.paymentUrl) {
-        window.location.href = response.data.paymentUrl;
+      if (!orderResponse.data || !orderResponse.data.id) {
+        throw new Error('No se pudo crear la orden');
+      }
+
+      // Then create the payment
+      const paymentResponse = await axios.post(
+        'http://localhost:3000/api/payments',
+        {
+          orderId: orderResponse.data.id
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      if (paymentResponse.data && paymentResponse.data.paymentUrl) {
+        window.location.href = paymentResponse.data.paymentUrl;
       } else {
-        setError('Error al procesar el pago');
+        throw new Error('No se pudo procesar el pago');
       }
     } catch (error) {
-      setError(error.response?.data?.error || 'Error al procesar la orden');
-      console.error('Error al procesar la orden:', error);
+      console.error('Error en el proceso de checkout:', error);
+      setError(error.response?.data?.error || 'Error al procesar la orden. Por favor, intenta nuevamente.');
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -121,7 +144,7 @@ const Cart = () => {
             Tu carrito está vacío
           </h2>
           <button
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/')}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Ver productos
@@ -195,9 +218,19 @@ const Cart = () => {
             </div>
             <button
               onClick={handleCheckout}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={checkoutLoading}
+              className={`bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 ${
+                checkoutLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Proceder al pago
+              {checkoutLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Procesando...
+                </div>
+              ) : (
+                'Proceder al pago'
+              )}
             </button>
           </div>
         </div>

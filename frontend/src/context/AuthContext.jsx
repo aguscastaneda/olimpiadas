@@ -1,14 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
 
 export const AuthProvider = ({ children }) => {
@@ -16,46 +12,71 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchUser(token);
-    } else {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Verificar si el token es válido
+          const response = await axios.get('http://localhost:3000/api/auth/me', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUser(response.data);
+        } catch (error) {
+          console.error('Error al verificar la sesión:', error);
+          // Si hay un error de autenticación, limpiar el token
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            setUser(null);
+          }
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    initializeAuth();
   }, []);
 
-  const fetchUser = async (token) => {
+  const login = async (email, password) => {
     try {
-      const response = await axios.get('http://localhost:3000/api/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email,
+        password,
       });
-      setUser(response.data);
+
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setUser(user);
+      return { success: true };
     } catch (error) {
-      localStorage.removeItem('token');
-    } finally {
-      setLoading(false);
+      console.error('Error en login:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Error al iniciar sesión',
+      };
     }
   };
 
-  const login = async (email, password) => {
-    const response = await axios.post('http://localhost:3000/api/auth/login', {
-      email,
-      password,
-    });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    setUser(user);
-    return user;
-  };
+  const register = async (name, email, password) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/register', {
+        name,
+        email,
+        password,
+      });
 
-  const register = async (userData) => {
-    const response = await axios.post('http://localhost:3000/api/auth/register', userData);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    setUser(user);
-    return user;
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      console.error('Error en registro:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Error al registrar usuario',
+      };
+    }
   };
 
   const logout = () => {
@@ -63,17 +84,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const value = {
+    user,
+    loading,
+    login,
+    register,
+    logout,
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }; 

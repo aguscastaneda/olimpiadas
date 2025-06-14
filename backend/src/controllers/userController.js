@@ -54,7 +54,11 @@ const register = async (req, res) => {
       return user;
     });
 
-    const token = jwt.sign({ userId: result.id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: result.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' } // Token válido por 24 horas
+    );
 
     res.status(201).json({
       user: {
@@ -95,7 +99,11 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' } // Token válido por 24 horas
+    );
 
     res.json({
       user: {
